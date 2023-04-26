@@ -7,7 +7,7 @@ function App() {
   const [movieName, setMovieName] = useState('')
   const [review, setReview] = useState('')
   const [movieReviewList, setMovieList] = useState([]);
-
+  const [newReview, setNewReview] = useState('');
 
   useEffect(() => {
     Axios.get('http://localhost:3001/api/get').then((response) => {
@@ -19,9 +19,23 @@ function App() {
     Axios.post("http://localhost:3001/api/insert", {
       movieName: movieName,
       movieReview: review,
-    }).then(() => {
-      alert('successfull insert');
-    })
+    });
+      
+    setMovieList([...movieReviewList, {movieName: movieName, movieReview: review}]);
+    
+  }
+
+  const deleteReview = (movieID) => {
+    Axios.delete(`http://localhost:3001/api/delete/${movieID}`)
+  }
+
+  const updateReview = (id) => {
+    Axios.put("http://localhost:3001/api/update", {
+      movieID: id,
+      movieReview: newReview
+    });
+    setNewReview("");
+
   }
 
   return (
@@ -37,7 +51,15 @@ function App() {
 
         {movieReviewList.map((val)=>{
           return(
-            <h1 key={val.id}>Movie Name: {val.movieName} | Movie Review: {val.movieReview}</h1>
+            <div key={val.id} className='card'>
+              <h1>{val.movieName}</h1>
+              <p>{val.movieReview}</p>
+
+              <button onClick={() => deleteReview(val.id)}>Delete</button>
+
+              <input type="text" className='inputUpdate' onChange={(e)=> {setNewReview(e.target.value)}}/>
+              <button onClick={() => {updateReview(val.id)}}>Update</button>
+            </div> 
           );
         })}
       </div>
